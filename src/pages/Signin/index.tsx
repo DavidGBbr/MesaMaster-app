@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
