@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -12,9 +12,12 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  const { signIn } = useContext(AuthContext);
+
+  const handleLogin = async () => {
     if (email === "" || password === "") return;
-    alert("Email: " + email);
+
+    await signIn({ email, password });
   };
 
   return (
