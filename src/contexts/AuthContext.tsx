@@ -1,4 +1,9 @@
-import React, { PropsWithChildren, createContext, useState } from "react";
+import React, {
+  PropsWithChildren,
+  createContext,
+  useEffect,
+  useState,
+} from "react";
 import { api } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -18,6 +23,9 @@ type AuthContextData = {
   user: UserProps;
   isAuthenticated: boolean;
   signIn: (credentials: SignInProps) => Promise<void>;
+  signOut: () => Promise<void>;
+  loadingAuth: boolean;
+  loading: boolean;
 };
 
 export const AuthContext = createContext({} as AuthContextData);
@@ -29,8 +37,33 @@ export function AuthProvider({ children }: PropsWithChildren) {
     email: "",
     token: "",
   } as UserProps);
-  const isAuthenticated = !!user.name;
   const [loadingAuth, setLoadingAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const isAuthenticated = !!user.name;
+
+  useEffect(() => {
+    const getUser = async () => {
+      const userInfo = await AsyncStorage.getItem("@mesamaster");
+      let hasUser: UserProps = JSON.parse(userInfo || "{}");
+
+      if (Object.keys(hasUser).length > 0) {
+        api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${hasUser.token}`;
+
+        setUser({
+          id: hasUser.id,
+          name: hasUser.name,
+          email: hasUser.email,
+          token: hasUser.token,
+        });
+      }
+
+      setLoading(false);
+    };
+
+    getUser();
+  }, []);
 
   const signIn = async ({ email, password }: SignInProps) => {
     setLoadingAuth(true);
@@ -57,12 +90,26 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   };
 
+  const signOut = async () => {
+    await AsyncStorage.clear().then(() => {
+      setUser({
+        id: "",
+        name: "",
+        email: "",
+        token: "",
+      });
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated,
         signIn,
+        signOut,
+        loading,
+        loadingAuth,
       }}
     >
       {children}
