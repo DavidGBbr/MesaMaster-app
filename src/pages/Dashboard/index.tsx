@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import {
   SafeAreaView,
@@ -7,9 +7,22 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackParamsList } from "../../routes/app.routes";
 
 const Dashboard = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<StackParamsList>>();
+  const [number, setNumber] = useState("");
   const { signOut } = useContext(AuthContext);
+
+  const openOrder = async () => {
+    if (number === "") {
+      return;
+    }
+    navigation.navigate("Order", { number: number, order_id: "123" });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -19,8 +32,10 @@ const Dashboard = () => {
         placeholderTextColor="#f0f0f0"
         keyboardType="numeric"
         style={styles.input}
+        value={number}
+        onChangeText={setNumber}
       />
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={openOrder}>
         <Text style={styles.buttonText}>Abrir</Text>
       </TouchableOpacity>
     </SafeAreaView>
