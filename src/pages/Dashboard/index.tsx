@@ -10,6 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
+import { api } from "../../services/api";
 
 const Dashboard = () => {
   const navigation =
@@ -21,7 +22,17 @@ const Dashboard = () => {
     if (number === "") {
       return;
     }
-    navigation.navigate("Order", { number: number, order_id: "123" });
+
+    const response = await api.post("/order", {
+      table: Number(number),
+    });
+
+    navigation.navigate("Order", {
+      number: number,
+      order_id: response.data.id,
+    });
+
+    setNumber("");
   };
 
   return (
@@ -36,7 +47,7 @@ const Dashboard = () => {
         onChangeText={setNumber}
       />
       <TouchableOpacity style={styles.button} onPress={openOrder}>
-        <Text style={styles.buttonText}>Abrir</Text>
+        <Text style={styles.buttonText}>Abrir mesa</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
