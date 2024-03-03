@@ -6,9 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Modal,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { api } from "../../services/api";
+import ModalPicker from "../../Components/ModalPicker";
 
 type RouteDetailParams = {
   Order: {
@@ -17,7 +19,7 @@ type RouteDetailParams = {
   };
 };
 
-type CategoryProps = {
+export type CategoryProps = {
   id: string;
   name: string;
 };
@@ -31,6 +33,7 @@ const Order = () => {
   const [category, setCategory] = useState<CategoryProps[] | []>([]);
   const [categorySelected, setCategorySelected] = useState<CategoryProps>();
   const [amount, setAmount] = useState("1");
+  const [modalCategoryVisible, setModalCategoryVisible] = useState(false);
 
   useEffect(() => {
     const loadInfo = async () => {
@@ -53,6 +56,11 @@ const Order = () => {
       console.log(error);
     }
   };
+
+  const handleChangeCategory = (item: CategoryProps) => {
+    setCategorySelected(item);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -63,7 +71,10 @@ const Order = () => {
       </View>
 
       {category.length !== 0 && (
-        <TouchableOpacity style={styles.input}>
+        <TouchableOpacity
+          style={styles.input}
+          onPress={() => setModalCategoryVisible(true)}
+        >
           <Text style={{ color: "#fff" }}>{categorySelected?.name}</Text>
         </TouchableOpacity>
       )}
@@ -91,6 +102,18 @@ const Order = () => {
           <Text style={styles.buttonText}>Avançar</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        transparent={true}
+        visible={modalCategoryVisible}
+        animationType="fade"
+      >
+        <ModalPicker
+          handleCloseModal={() => setModalCategoryVisible(false)}
+          options={category}
+          selectedItem={handleChangeCategory}
+        />
+      </Modal>
     </View>
   );
 };
