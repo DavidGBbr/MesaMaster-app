@@ -120,6 +120,17 @@ const Order = () => {
     setItems((oldItems) => [...oldItems, data]);
   };
 
+  const handleDeleteItem = async (item_id: string) => {
+    await api.delete("/order/remove", {
+      params: {
+        item_id: item_id,
+      },
+    });
+
+    let removeItem = items.filter((item) => item.id !== item_id);
+    setItems(removeItem);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -178,7 +189,9 @@ const Order = () => {
         style={{ flex: 1, marginTop: 24 }}
         data={items}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ListItem data={item} />}
+        renderItem={({ item }) => (
+          <ListItem data={item} deleteItem={handleDeleteItem} />
+        )}
       />
 
       <Modal
